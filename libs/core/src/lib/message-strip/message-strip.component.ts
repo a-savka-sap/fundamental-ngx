@@ -7,7 +7,9 @@ import {
     OnInit,
     ViewEncapsulation,
     EventEmitter,
-    Output
+    Output,
+    AfterViewInit,
+    ViewChild
 } from '@angular/core';
 import { applyCssClass, CssClassBuilder } from '../utils/public_api';
 
@@ -22,7 +24,6 @@ let messageStripUniqueId = 0;
     styleUrls: ['./message-strip.component.scss'],
     host: {
         '[attr.aria-labelledby]': 'ariaLabelledBy',
-        '[attr.aria-label]': 'ariaLabel',
         '[style.width]': 'width',
         '[style.min-width]': 'minWidth',
         '[style.margin-bottom]': 'marginBottom',
@@ -32,7 +33,7 @@ let messageStripUniqueId = 0;
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MessageStripComponent implements OnInit, OnChanges, CssClassBuilder {
+export class MessageStripComponent implements OnInit, AfterViewInit, OnChanges, CssClassBuilder {
     /** User's custom classes */
     @Input()
     class = '';
@@ -82,6 +83,13 @@ export class MessageStripComponent implements OnInit, OnChanges, CssClassBuilder
     @Input()
     marginBottom: string;
 
+    /**
+     * @hidden
+     * reference to the message strip content
+     */
+    @ViewChild('messageStripContent', { read: ElementRef })
+    messageStripContent: ElementRef;
+
     /** Event fired when the message-strip is dismissed. */
     @Output()
     onDismiss: EventEmitter<void> = new EventEmitter<void>();
@@ -97,6 +105,14 @@ export class MessageStripComponent implements OnInit, OnChanges, CssClassBuilder
     /** @hidden */
     ngOnChanges(): void {
         this.buildComponentCssClass();
+    }
+
+    /** @hidden */
+    ngAfterViewInit(): void {
+        if (!this.ariaLabel) {
+            this.ariaLabel = this.messageStripContent.nativeElement.innerText;
+        }
+        this._elementRef.nativeElement.setAttribute('aria-label', this.ariaLabel);
     }
 
     /** @hidden */
