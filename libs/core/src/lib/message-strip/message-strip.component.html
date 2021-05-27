@@ -1,3 +1,13 @@
+<span class="fd-accessible-hidden-message" [attr.aria-label]="_getMessage()"></span>
+<span
+    *ngIf="_customAriaLabel"
+    class="fd-accessible-hidden-message"
+    [id]="_customAriaLabelId"
+    [attr.aria-label]="_customAriaLabel"
+></span>
+<p class="fd-message-strip__text" [id]="_messageContentId" aria-hidden="true" role="alert">
+    <ng-content></ng-content>
+</p>
 <button
     class="fd-message-strip__close"
     fd-button
@@ -10,6 +20,3 @@
     [attr.aria-label]="dismissLabel"
     [attr.title]="dismissLabel"
 ></button>
-<p class="fd-message-strip__text" #messageStripContent>
-    <ng-content></ng-content>
-</p>

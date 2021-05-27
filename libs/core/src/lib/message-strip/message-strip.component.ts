@@ -9,11 +9,13 @@ import {
     EventEmitter,
     Output,
     AfterViewInit,
-    ViewChild
+    ChangeDetectorRef
 } from '@angular/core';
 import { applyCssClass, CssClassBuilder } from '../utils/public_api';
 
 let messageStripUniqueId = 0;
+let messageStripContentUniqueId = 0;
+let messageStripCustomAriaLabelUniqueId = 0;
 
 /**
  * The component that represents a message-strip. It can only be used inline.
@@ -23,11 +25,9 @@ let messageStripUniqueId = 0;
     templateUrl: './message-strip.component.html',
     styleUrls: ['./message-strip.component.scss'],
     host: {
-        '[attr.aria-labelledby]': 'ariaLabelledBy',
         '[style.width]': 'width',
         '[style.min-width]': 'minWidth',
         '[style.margin-bottom]': 'marginBottom',
-        role: 'alert',
         '[attr.id]': 'id'
     },
     encapsulation: ViewEncapsulation.None,
@@ -63,7 +63,7 @@ export class MessageStripComponent implements OnInit, AfterViewInit, OnChanges, 
     @Input()
     ariaLabelledBy: string = null;
 
-    /** Aria label for the message-strip component element. */
+    /** Aria label for the message-strip component element. If not specified, it will be set to the content. */
     @Input()
     ariaLabel: string = null;
 
@@ -83,19 +83,21 @@ export class MessageStripComponent implements OnInit, AfterViewInit, OnChanges, 
     @Input()
     marginBottom: string;
 
-    /**
-     * @hidden
-     * reference to the message strip content
-     */
-    @ViewChild('messageStripContent', { read: ElementRef })
-    messageStripContent: ElementRef;
-
     /** Event fired when the message-strip is dismissed. */
     @Output()
     onDismiss: EventEmitter<void> = new EventEmitter<void>();
 
     /** @hidden */
-    constructor(private _elementRef: ElementRef) {}
+    _customAriaLabel: string = null;
+
+    /** @hidden */
+    _messageContentId: string = 'fd-message-strip-content' + messageStripContentUniqueId++;
+
+    /** @hidden */
+    _customAriaLabelId: string = 'fd-message-strip-custom-aria-label-element' + messageStripCustomAriaLabelUniqueId++;
+
+    /** @hidden */
+    constructor(private _cd: ChangeDetectorRef, private _elementRef: ElementRef) {}
 
     /** @hidden */
     ngOnInit(): void {
@@ -109,10 +111,24 @@ export class MessageStripComponent implements OnInit, AfterViewInit, OnChanges, 
 
     /** @hidden */
     ngAfterViewInit(): void {
-        if (!this.ariaLabel) {
-            this.ariaLabel = this.messageStripContent.nativeElement.innerText;
+        let ariaLabelledbyInternalID = '';
+        if (this.ariaLabel) {
+            this._customAriaLabel = this.ariaLabel;
+            this._elementRef.nativeElement.setAttribute('aria-label', this.ariaLabel);
         }
-        this._elementRef.nativeElement.setAttribute('aria-label', this.ariaLabel);
+        // if aria label is specified, screen reader should read out this content instead of the default behaviour
+        // of reading the message strip text
+        if (this._customAriaLabel) {
+            ariaLabelledbyInternalID = this._customAriaLabelId;
+        } else {
+            ariaLabelledbyInternalID = this._messageContentId;
+        }
+        // if id is provided by user to associate this message strip, we include both ids
+        if (this.ariaLabelledBy) {
+            ariaLabelledbyInternalID += ' ' + this.ariaLabelledBy;
+        }
+        this._elementRef.nativeElement.setAttribute('aria-labelledby', ariaLabelledbyInternalID);
+        this._cd.detectChanges();
     }
 
     /** @hidden */
@@ -142,5 +158,21 @@ export class MessageStripComponent implements OnInit, AfterViewInit, OnChanges, 
             this.noIcon ? 'fd-message-strip--no-icon' : '',
             this.class
         ];
+    }
+
+    /**
+     * @hidden
+     * get the message that screen reader should speak when icons or types are present
+     */
+    _getMessage(): string {
+        let message = '';
+        if (!this.type) {
+            message = 'Normal Message Strip bar';
+        } else if (this.type && this.noIcon) {
+            message = 'Message Strip ' + this.type + ' bar';
+        } else {
+            message = 'Message Strip ' + this.type + ' bar with ' + this.type + ' icon';
+        }
+        return message;
     }
 }
