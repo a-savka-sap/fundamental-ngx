@@ -164,9 +164,7 @@ export class MessageStripComponent implements OnInit, AfterViewInit, OnChanges, 
                 this.dismissLabel +
                 ' information bar. ' +
                 (this.type ? this.type : 'Normal') +
-                ' Message Strip ' +
-                this.dismissLabel +
-                '  button';
+                ' Message Strip button.';
         }
         return message;
     }
