@@ -1,11 +1,4 @@
-<span class="fd-accessible-hidden-message" [attr.aria-label]="_getMessage()"></span>
-<span
-    *ngIf="_customAriaLabel"
-    class="fd-accessible-hidden-message"
-    [id]="_customAriaLabelId"
-    [attr.aria-label]="_customAriaLabel"
-></span>
-<p class="fd-message-strip__text" [id]="_messageContentId" aria-hidden="true" role="alert">
+<p class="fd-message-strip__text" #messageStripContent role="alert">
     <ng-content></ng-content>
 </p>
 <button

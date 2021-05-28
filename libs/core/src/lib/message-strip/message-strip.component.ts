@@ -9,13 +9,12 @@ import {
     EventEmitter,
     Output,
     AfterViewInit,
-    ChangeDetectorRef
+    ChangeDetectorRef,
+    ViewChild
 } from '@angular/core';
 import { applyCssClass, CssClassBuilder } from '../utils/public_api';
 
 let messageStripUniqueId = 0;
-let messageStripContentUniqueId = 0;
-let messageStripCustomAriaLabelUniqueId = 0;
 
 /**
  * The component that represents a message-strip. It can only be used inline.
@@ -69,7 +68,7 @@ export class MessageStripComponent implements OnInit, AfterViewInit, OnChanges, 
 
     /** Aria label for the dismiss button. */
     @Input()
-    dismissLabel = 'Dismiss';
+    dismissLabel = 'Close';
 
     /** Width of the message-strip. */
     @Input()
@@ -88,13 +87,8 @@ export class MessageStripComponent implements OnInit, AfterViewInit, OnChanges, 
     onDismiss: EventEmitter<void> = new EventEmitter<void>();
 
     /** @hidden */
-    _customAriaLabel: string = null;
-
-    /** @hidden */
-    _messageContentId: string = 'fd-message-strip-content' + messageStripContentUniqueId++;
-
-    /** @hidden */
-    _customAriaLabelId: string = 'fd-message-strip-custom-aria-label-element' + messageStripCustomAriaLabelUniqueId++;
+    @ViewChild('messageStripContent', { read: ElementRef })
+    private _messageStripContent: ElementRef;
 
     /** @hidden */
     constructor(private _cd: ChangeDetectorRef, private _elementRef: ElementRef) {}
@@ -111,23 +105,11 @@ export class MessageStripComponent implements OnInit, AfterViewInit, OnChanges, 
 
     /** @hidden */
     ngAfterViewInit(): void {
-        let ariaLabelledbyInternalID = '';
         if (this.ariaLabel) {
-            this._customAriaLabel = this.ariaLabel;
             this._elementRef.nativeElement.setAttribute('aria-label', this.ariaLabel);
-        }
-        // if aria label is specified, screen reader should read out this content instead of the default behaviour
-        // of reading the message strip text
-        if (this._customAriaLabel) {
-            ariaLabelledbyInternalID = this._customAriaLabelId;
         } else {
-            ariaLabelledbyInternalID = this._messageContentId;
+            this._elementRef.nativeElement.setAttribute('aria-label', this._getMessage());
         }
-        // if id is provided by user to associate this message strip, we include both ids
-        if (this.ariaLabelledBy) {
-            ariaLabelledbyInternalID += ' ' + this.ariaLabelledBy;
-        }
-        this._elementRef.nativeElement.setAttribute('aria-labelledby', ariaLabelledbyInternalID);
         this._cd.detectChanges();
     }
 
@@ -167,11 +149,24 @@ export class MessageStripComponent implements OnInit, AfterViewInit, OnChanges, 
     _getMessage(): string {
         let message = '';
         if (!this.type) {
-            message = 'Normal Message Strip bar';
+            message = 'Message Strip normal' + (this.dismissible ? ' closeable' : '') + '.';
         } else if (this.type && this.noIcon) {
-            message = 'Message Strip ' + this.type + ' bar';
+            message = 'Message Strip ' + this.type + (this.dismissible ? ' closeable' : '') + '.';
         } else {
-            message = 'Message Strip ' + this.type + ' bar with ' + this.type + ' icon';
+            message =
+                'Message Strip ' + this.type + (this.dismissible ? ' closeable' : '') + ' with ' + this.type + ' icon.';
+        }
+        // also read the text
+        message += this._messageStripContent.nativeElement.innerText;
+        if (this.dismissible) {
+            message +=
+                ' Message Strip ' +
+                this.dismissLabel +
+                ' information bar. ' +
+                (this.type ? this.type : 'Normal') +
+                ' Message Strip ' +
+                this.dismissLabel +
+                '  button';
         }
         return message;
     }
