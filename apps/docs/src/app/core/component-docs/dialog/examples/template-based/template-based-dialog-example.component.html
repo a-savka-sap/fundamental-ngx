@@ -1,6 +1,6 @@
 <ng-template let-dialog let-dialogConfig="dialogConfig" #confirmationDialog>
     <fd-dialog [dialogConfig]="dialogConfig" [dialogRef]="dialog">
-        <fd-dialog-header>
+        <fd-dialog-header >
             <h1 id="fd-dialog-header-10" fd-title>The History of Pineapple</h1>
             <button fd-dialog-close-button (click)="dialog.dismiss('Close button')"></button>
         </fd-dialog-header>
@@ -11,6 +11,7 @@
 
         <fd-dialog-footer>
             <fd-button-bar
+			        fdInitialFocus
                     fdType="emphasized"
                     label="Interested"
                     [compact]="true"
