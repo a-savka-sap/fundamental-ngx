@@ -103,11 +103,14 @@ export class MenuTriggerDirective implements OnDestroy, AfterContentInit {
     }
 
     /** @hidden Handled keypress which focus is on trigger element. */
-    @HostListener('spacebar', ['$event'])
     @HostListener('keydown', ['$event']) onTriggerKeydown($event: KeyboardEvent): void {
         switch ($event.key) {
             case 'Enter':
             case ' ':
+                if ($event.key === ' ') {
+                    $event.preventDefault();
+                }
+
                 // Need to interupt default menu item behavior of closing the menu
                 if (this._isMenuItem()) {
                     $event.preventDefault();
