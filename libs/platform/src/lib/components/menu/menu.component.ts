@@ -152,6 +152,8 @@ export class MenuComponent implements OnInit, AfterViewInit, AfterContentInit, O
                 this.close.emit('keyboard');
                 break;
             case 'Enter':
+            case ' ':
+                $event.preventDefault();
                 this.close.emit('keyboard');
                 break;
             default:

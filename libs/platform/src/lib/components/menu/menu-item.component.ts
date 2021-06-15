@@ -61,7 +61,7 @@ export class MenuItemComponent implements OnDestroy, FocusableOption {
 
     /** @hidden Handle selection of item via keyboard 'Enter' or mouseclick. */
     @HostListener('keydown', ['$event']) onItemKeydown(event: KeyboardEvent): void {
-        if (event && event.key === 'Enter') {
+        if (event && (event.key === 'Enter' || event.key === ' ')) {
             this.itemSelect.emit();
         }
     }
