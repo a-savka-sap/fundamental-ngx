@@ -1,11 +1,11 @@
 <ng-template let-dialog let-dialogConfig="dialogConfig" #confirmationDialog>
     <fd-dialog [dialogConfig]="dialogConfig" [dialogRef]="dialog">
         <fd-dialog-header>
-            <h1 id='fd-dialog-header-10'fd-title>The History of Pineapple</h1>
+            <h1 id="fd-dialog-header-10" fd-title>The History of Pineapple</h1>
             <button fd-dialog-close-button (click)="dialog.dismiss('Close button')"></button>
         </fd-dialog-header>
 
-        <fd-dialog-body>
+        <fd-dialog-body id="fd-dialog-body-10">
             Are you interested in The Great History of Pineapple?
         </fd-dialog-body>
 
@@ -17,7 +17,6 @@
                     (click)="dialog.close('Continue')">
             </fd-button-bar>
             <fd-button-bar
-                    fd-initial-focus
                     label="Cancel"
                     [compact]="true"
                     (click)="dialog.dismiss('Cancel')">
